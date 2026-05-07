@@ -1,0 +1,27 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@layer utilities {
+  .syntax-jk { color: #79b8ff; }  /* key */
+  .syntax-js { color: #9ecbff; }  /* string value */
+  .syntax-jn { color: #f8894e; }  /* number */
+  .syntax-jb { color: #79b8ff; }  /* boolean */
+  .syntax-jnl { color: #6a737d; } /* null */
+  .syntax-jp { color: #e1e4e8; }  /* punctuation */
+  .syntax-dynamic { color: #fbbf24; font-weight: bold; text-decoration: underline dotted; }
+
+  .skeleton-bg {
+    background-image: linear-gradient(90deg, #f0f0ee 25%, #e8e8e5 50%, #f0f0ee 75%);
+    background-size: 200% 100%;
+  }
+}
+
+@layer base {
+  body {
+    @apply font-sans bg-background text-text min-h-screen text-[15px];
+  }
+
+  *, *::before, *::after {
+    @apply box-border m-0 p-0;
+  }
+}

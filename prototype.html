@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APIlot: Read Less, Build More</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@500;600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f5f0;
+      --surface: #ffffff;
+      --border: rgba(0,0,0,0.1);
+      --border-strong: rgba(0,0,0,0.18);
+      --text: #0d0d0d;
+      --text-muted: #717182;
+      --accent: #4f46e5;
+      --accent-hover: #4338ca;
+      --accent-light: #ede9fe;
+      --terminal-bg: #0f1117;
+      --terminal-border: #1e2030;
+      --terminal-text: #c9d1d9;
+      --terminal-dim: #484f58;
+      --terminal-green: #3fb950;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 15px;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .logo-icon svg { width: 18px; height: 18px; color: white; }
+
+    .logo-text h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+    }
+
+    .logo-text p {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    /* MAIN */
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 28px 24px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    /* LEFT COLUMN */
+    .left-col { display: flex; flex-direction: column; gap: 16px; }
+
+    /* CARD */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    /* URL INPUT CARD */
+    .url-card { padding: 18px; }
+
+    .url-card label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .input-wrap {
+      position: relative;
+      flex: 1;
+    }
+
+    .input-wrap svg {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 15px;
+      height: 15px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .url-input {
+      width: 100%;
+      padding: 9px 12px 9px 34px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: #f9f9f8;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .url-input::placeholder { color: #aaa; }
+    .url-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
+      background: white;
+    }
+
+    .scan-btn {
+      padding: 9px 18px;
+      border-radius: var(--radius-sm);
+      background: var(--accent);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-family: 'Syne', sans-serif;
+      font-size: 13.5px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: background 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .scan-btn:hover { background: var(--accent-hover); }
+    .scan-btn:active { transform: scale(0.98); }
+    .scan-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .scan-btn .spinner {
+      width: 13px; height: 13px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .scan-btn.loading .spinner { display: block; }
+    .scan-btn.loading .btn-label { display: none; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* FORM FIELDS CARD */
+    .fields-card { flex: 1; overflow: hidden; }
+
+    .card-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-header-left svg {
+      width: 15px; height: 15px;
+      color: var(--accent);
+    }
+
+    .card-header h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+
+    .field-count {
+      font-size: 11.5px;
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: #f0f0ee;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .card-body { padding: 18px; }
+
+    /* EMPTY STATE */
+    .empty-state {
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .empty-icon {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: #f0f0ee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .empty-icon svg { width: 22px; height: 22px; color: #aaa; }
+
+    .empty-state p:first-of-type {
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .empty-state p:last-of-type {
+      font-size: 13px;
+      color: var(--text-muted);
+      max-width: 240px;
+      line-height: 1.5;
+    }
+
+    /* DYNAMIC FORM */
+    .dynamic-form { display: flex; flex-direction: column; gap: 14px; }
+
+    .form-field { display: flex; flex-direction: column; gap: 5px; }
+
+    .form-field label {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .required-badge {
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: #fee2e2;
+      color: #dc2626;
+      font-weight: 600;
+    }
+
+    .type-badge {
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 500;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+      width: 100%;
+      padding: 8px 11px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: #f9f9f8;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .form-field input:focus,
+    .form-field select:focus,
+    .form-field textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+      background: white;
+    }
+
+    .form-field textarea { resize: vertical; min-height: 72px; }
+
+    .form-field input[type="checkbox"] {
+      width: 16px; height: 16px;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-direction: row;
+    }
+
+    /* ERROR */
+    .error-banner {
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+      font-size: 13px;
+      display: none;
+    }
+    .error-banner.show { display: block; }
+
+    /* RIGHT COLUMN - TERMINAL */
+    .terminal {
+      background: var(--terminal-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--terminal-border);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 500px;
+    }
+
+    .terminal-titlebar {
+      padding: 11px 16px;
+      background: #0a0c12;
+      border-bottom: 1px solid var(--terminal-border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 11px; height: 11px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ff5f57; }
+    .dot-yellow { background: #febc2e; }
+    .dot-green { background: #28c840; }
+
+    .terminal-title {
+      flex: 1;
+      text-align: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: var(--terminal-dim);
+    }
+
+    .copy-btn {
+      padding: 4px 10px;
+      border-radius: 5px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--terminal-dim);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255,255,255,0.1);
+      color: var(--terminal-text);
+    }
+
+    .copy-btn.copied { color: var(--terminal-green); border-color: var(--terminal-green); }
+
+    .terminal-body {
+      flex: 1;
+      padding: 18px;
+      overflow: auto;
+      display: flex;
+      gap: 0;
+    }
+
+    .line-numbers {
+      user-select: none;
+      color: var(--terminal-dim);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      text-align: right;
+      padding-right: 16px;
+      border-right: 1px solid var(--terminal-border);
+      margin-right: 16px;
+      min-width: 28px;
+    }
+
+    .terminal-code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--terminal-text);
+      white-space: pre;
+      flex: 1;
+    }
+
+    /* JSON syntax colors */
+    .jk { color: #79b8ff; }  /* key */
+    .js { color: #9ecbff; }  /* string value */
+    .jn { color: #f8894e; }  /* number */
+    .jb { color: #79b8ff; }  /* boolean */
+    .jnl { color: #6a737d; } /* null */
+    .jp { color: #e1e4e8; }  /* punctuation */
+
+    .terminal-footer {
+      padding: 8px 16px;
+      background: #0a0c12;
+      border-top: 1px solid var(--terminal-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--terminal-dim);
+    }
+
+    .status-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-dot::before {
+      content: '';
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--terminal-green);
+    }
+
+    /* LOADING SKELETON */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0ee 25%, #e8e8e5 50%, #f0f0ee 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 6px;
+      height: 36px;
+      margin-bottom: 12px;
+    }
+    .skeleton.short { width: 60%; height: 12px; margin-bottom: 6px; }
+    .skeleton.label { width: 35%; height: 12px; margin-bottom: 5px; }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .loading-fields { padding: 18px; }
+
+    /* FADE IN */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.25s ease forwards; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 18 22 12 16 6"></polyline>
+          <polyline points="8 6 2 12 8 18"></polyline>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <h1>APIlot: Read Less, Build More</h1>
+        <p>AI-Powered API Navigator. Paste any API doc URL to instantly extract endpoints and available fields.</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid">
+
+      <!-- LEFT COLUMN -->
+      <div class="left-col">
+
+        <!-- URL INPUT -->
+        <div class="card url-card">
+          <label for="url-input">API Documentation URL</label>
+          <div class="input-row">
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input
+                id="url-input"
+                type="url"
+                class="url-input"
+                placeholder="https://api.example.com/docs"
+                autocomplete="off"
+                spellcheck="false"
+              />
+            </div>
+            <button class="scan-btn" id="scan-btn" onclick="handleScan()">
+              <div class="spinner"></div>
+              <span class="btn-label">Scan Docs</span>
+            </button>
+          </div>
+          <div class="error-banner" id="error-banner"></div>
+        </div>
+
+        <!-- FIELDS CARD -->
+        <div class="card fields-card">
+          <div class="card-header">
+            <div class="card-header-left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              <h2>Generated Form Fields</h2>
+            </div>
+            <span class="field-count" id="field-count">0 fields</span>
+          </div>
+          <div id="fields-body">
+            <div class="empty-state">
+              <div class="empty-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+              </div>
+              <p>Awaiting API Schema...</p>
+              <p>Enter a documentation URL above and click Scan Docs to generate form fields.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN - TERMINAL -->
+      <div class="terminal">
+        <div class="terminal-titlebar">
+          <div class="terminal-dots">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+          </div>
+          <div class="terminal-title">payload.json</div>
+          <button class="copy-btn" id="copy-btn" onclick="copyPayload()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copy
+          </button>
+        </div>
+
+        <div class="terminal-body">
+          <div class="line-numbers" id="line-numbers">1<br>2<br>3</div>
+          <div class="terminal-code" id="terminal-code"><span class="jp">{</span>
+
+<span class="jp">}</span></div>
+        </div>
+
+        <div class="terminal-footer">
+          <span>UTF-8 · JSON</span>
+          <span class="status-dot">Ready</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // ── State ──────────────────────────────────────────────────────────────
+    let schema = [];      // [{name, type, required, description, enum}]
+    let payload = {};     // live payload object
+
+    // ── n8n webhook URL ────────────────────────────────────────────────────
+    // 🔧 Replace this with your actual n8n webhook URL
+    const N8N_WEBHOOK_URL = 'YOUR_N8N_WEBHOOK_URL_HERE';
+
+    // ── Scan handler ───────────────────────────────────────────────────────
+    async function handleScan() {
+      const url = document.getElementById('url-input').value.trim();
+      const btn = document.getElementById('scan-btn');
+      const errorBanner = document.getElementById('error-banner');
+
+      errorBanner.classList.remove('show');
+
+      if (!url) {
+        showError('Please enter a URL first.');
+        return;
+      }
+
+      try { new URL(url); } catch {
+        showError('Please enter a valid URL (include https://).');
+        return;
+      }
+
+      // Loading state
+      btn.disabled = true;
+      btn.classList.add('loading');
+      showLoadingSkeleton();
+
+      try {
+        const res = await fetch(N8N_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+
+        if (!res.ok) throw new Error(`Server responded with ${res.status}`);
+
+        const data = await res.json();
+
+        // Expect: { fields: [{name, type, required, description, enum?}] }
+        if (!data.fields || !Array.isArray(data.fields)) {
+          throw new Error('Unexpected response format from n8n.');
+        }
+
+        schema = data.fields;
+        payload = {};
+        renderForm();
+        updateTerminal();
+
+      } catch (err) {
+        // ── DEMO MODE (no webhook yet) ──────────────────────────────────
+        if (N8N_WEBHOOK_URL === 'YOUR_N8N_WEBHOOK_URL_HERE') {
+          schema = getDemoSchema();
+          payload = {};
+          renderForm();
+          updateTerminal();
+        } else {
+          showError('Failed to scan: ' + err.message);
+          showEmptyState();
+        }
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+      }
+    }
+
+    // ── Demo schema (used when webhook not configured) ─────────────────────
+    function getDemoSchema() {
+      return [
+        { name: 'order_id',      type: 'string',  required: true,  description: 'Unique order identifier' },
+        { name: 'do_number',     type: 'string',  required: true,  description: 'Delivery order number' },
+        { name: 'date',          type: 'date',    required: true,  description: 'Delivery date (YYYY-MM-DD)' },
+        { name: 'address',       type: 'string',  required: true,  description: 'Delivery address' },
+        { name: 'items',         type: 'number',  required: false, description: 'Number of items' },
+        { name: 'instructions',  type: 'textarea',required: false, description: 'Special delivery instructions' },
+        { name: 'priority',      type: 'enum',    required: false, description: 'Delivery priority level', enum: ['low', 'normal', 'high', 'urgent'] },
+        { name: 'notify_sms',    type: 'boolean', required: false, description: 'Send SMS notification' },
+      ];
+    }
+
+    // ── Render dynamic form ────────────────────────────────────────────────
+    function renderForm() {
+      const body = document.getElementById('fields-body');
+      const count = document.getElementById('field-count');
+
+      count.textContent = `${schema.length} field${schema.length !== 1 ? 's' : ''}`;
+
+      if (schema.length === 0) { showEmptyState(); return; }
+
+      const form = document.createElement('div');
+      form.className = 'card-body dynamic-form fade-in';
+
+      schema.forEach(field => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'form-field';
+
+        // Label row
+        const label = document.createElement('label');
+        label.htmlFor = `field-${field.name}`;
+
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = formatLabel(field.name);
+        label.appendChild(nameSpan);
+
+        if (field.required) {
+          const req = document.createElement('span');
+          req.className = 'required-badge';
+          req.textContent = 'required';
+          label.appendChild(req);
+        }
+
+        const typeBadge = document.createElement('span');
+        typeBadge.className = 'type-badge';
+        typeBadge.textContent = field.type;
+        label.appendChild(typeBadge);
+
+        wrapper.appendChild(label);
+
+        // Input
+        let input;
+
+        if (field.type === 'boolean') {
+          const row = document.createElement('div');
+          row.className = 'checkbox-row';
+          input = document.createElement('input');
+          input.type = 'checkbox';
+          input.id = `field-${field.name}`;
+          input.checked = false;
+          input.addEventListener('change', () => {
+            payload[field.name] = input.checked;
+            updateTerminal();
+          });
+          const checkLabel = document.createElement('label');
+          checkLabel.htmlFor = `field-${field.name}`;
+          checkLabel.style.fontWeight = '400';
+          checkLabel.style.color = 'var(--text-muted)';
+          checkLabel.style.fontSize = '13px';
+          checkLabel.textContent = field.description || '';
+          row.appendChild(input);
+          row.appendChild(checkLabel);
+          wrapper.appendChild(row);
+          payload[field.name] = false;
+
+        } else if (field.type === 'enum' && field.enum) {
+          input = document.createElement('select');
+          input.id = `field-${field.name}`;
+          const placeholder = document.createElement('option');
+          placeholder.value = '';
+          placeholder.textContent = `Select ${formatLabel(field.name)}...`;
+          input.appendChild(placeholder);
+          field.enum.forEach(opt => {
+            const o = document.createElement('option');
+            o.value = opt; o.textContent = opt;
+            input.appendChild(o);
+          });
+          input.addEventListener('change', () => {
+            if (input.value) payload[field.name] = input.value;
+            else delete payload[field.name];
+            updateTerminal();
+          });
+          wrapper.appendChild(input);
+          payload[field.name] = '';
+
+        } else if (field.type === 'textarea') {
+          input = document.createElement('textarea');
+          input.id = `field-${field.name}`;
+          input.placeholder = field.description || '';
+          input.addEventListener('input', () => {
+            if (input.value) payload[field.name] = input.value;
+            else delete payload[field.name];
+            updateTerminal();
+          });
+          wrapper.appendChild(input);
+
+        } else {
+          input = document.createElement('input');
+          input.id = `field-${field.name}`;
+          input.type = field.type === 'number' ? 'number'
+                      : field.type === 'date'   ? 'date'
+                      : 'text';
+          input.placeholder = field.description || formatLabel(field.name);
+          input.addEventListener('input', () => {
+            const val = field.type === 'number' ? (input.value ? Number(input.value) : undefined)
+                                                : (input.value || undefined);
+            if (val !== undefined) payload[field.name] = val;
+            else delete payload[field.name];
+            updateTerminal();
+          });
+          wrapper.appendChild(input);
+        }
+
+        body.innerHTML = '';
+        body.appendChild(form);
+        form.appendChild(wrapper);
+      });
+
+      // Re-append all at once
+      body.innerHTML = '';
+      body.appendChild(form);
+    }
+
+    // ── Terminal / JSON output ─────────────────────────────────────────────
+    function updateTerminal() {
+      const jsonStr = JSON.stringify(payload, null, 2);
+      const lines = jsonStr.split('\n');
+
+      document.getElementById('line-numbers').innerHTML =
+        lines.map((_, i) => i + 1).join('<br>');
+
+      document.getElementById('terminal-code').innerHTML = syntaxHighlight(jsonStr);
+    }
+
+    function syntaxHighlight(json) {
+      return json
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"([^"]+)":/g, '<span class="jk">"$1"</span>:')
+        .replace(/: "([^"]*)"/g, ': <span class="js">"$1"</span>')
+        .replace(/: (true|false)/g, ': <span class="jb">$1</span>')
+        .replace(/: null/g, ': <span class="jnl">null</span>')
+        .replace(/: (-?\d+\.?\d*)/g, ': <span class="jn">$1</span>');
+    }
+
+    // ── Copy to clipboard ──────────────────────────────────────────────────
+    function copyPayload() {
+      const btn = document.getElementById('copy-btn');
+      const text = JSON.stringify(payload, null, 2);
+      navigator.clipboard.writeText(text).then(() => {
+        btn.classList.add('copied');
+        btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied!`;
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy`;
+        }, 2000);
+      });
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────
+    function formatLabel(name) {
+      return name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('error-banner');
+      el.textContent = msg;
+      el.classList.add('show');
+    }
+
+    function showEmptyState() {
+      document.getElementById('fields-body').innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+          </div>
+          <p>Awaiting API Schema...</p>
+          <p>Enter a documentation URL above and click Scan Docs to generate form fields.</p>
+        </div>`;
+    }
+
+    function showLoadingSkeleton() {
+      const body = document.getElementById('fields-body');
+      body.innerHTML = `
+        <div class="loading-fields">
+          ${[1,2,3,4].map(() => `
+            <div class="form-field" style="margin-bottom:14px">
+              <div class="skeleton label"></div>
+              <div class="skeleton"></div>
+            </div>`).join('')}
+        </div>`;
+    }
+
+    // Allow pressing Enter in URL input
+    document.getElementById('url-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') handleScan();
+    });
+  </script>
+
+</body>
+</html>
