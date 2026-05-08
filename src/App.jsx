@@ -285,6 +285,17 @@ export default function App() {
           </div>
         </div>
       </main>
+      <footer style={{
+        textAlign: 'center',
+        padding: '24px 16px',
+        color: 'rgba(0, 0, 0, 0.35)',
+        fontSize: '13px',
+        letterSpacing: '0.5px',
+        borderTop: '1px solid rgba(0, 0, 0, 0.08)',
+        marginTop: '0',
+      }}>
+        APIlot by Spawny-Jelly (ranfarrr)
+      </footer>
     </>
   );
 }
