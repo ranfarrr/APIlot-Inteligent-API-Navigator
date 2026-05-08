@@ -43,10 +43,15 @@ export default function ApiScannerInput({ onScan, isLoading, error, loadingMessa
         </button>
       </form>
       {isLoading && loadingMessage && !error && (
-        <div className="mt-3 p-[10px_14px] rounded-sm bg-accent-light border border-accent/20 text-accent text-[13px] animate-fade-in font-medium flex items-center gap-2">
-          <div className="w-3 h-3 border-2 border-accent/30 border-t-accent rounded-full animate-spin-slow"></div>
-          {loadingMessage}
-        </div>
+        <>
+          <div className="mt-3 p-[10px_14px] rounded-sm bg-accent-light border border-accent/20 text-accent text-[13px] animate-fade-in font-medium flex items-center gap-2">
+            <div className="w-3 h-3 border-2 border-accent/30 border-t-accent rounded-full animate-spin-slow"></div>
+            {loadingMessage}
+          </div>
+          <p className="mt-2 text-[12px] text-text-muted text-center animate-fade-in" style={{ opacity: 0.7 }}>
+            ⏳ Please wait, result may take up to 2 minutes to show
+          </p>
+        </>
       )}
       {error && (
         <div className="mt-3 p-[10px_14px] rounded-sm bg-[#fef2f2] border border-[#fecaca] text-[#dc2626] text-[13px] animate-fade-in">
