@@ -39,8 +39,6 @@ Our robust and high-performance stack is built for speed, accuracy, and scalabil
 
 MIT License
 
-Copyright (c) 2026 ranfarrr
-
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
