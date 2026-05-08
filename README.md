@@ -1,16 +1,42 @@
-# React + Vite
+# APIlot: Read Less, Build More 🚀
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+APIlot is an AI-powered API navigator designed to dramatically reduce the time developers spend reading documentation. By simply pasting an API documentation URL, APIlot instantly transforms static docs into dynamic, interactive, and usable forms complete with a live payload terminal.
 
-Currently, two official plugins are available:
+## ✨ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Quick Parsing**: Paste any API documentation URL and let our AI digest it within 2 minutes (Note: the n8n webhook enforces a maximum 2-minute timeout, so requests taking longer may fail).
+- **Dynamic Form Generation**: The application automatically generates an interactive, usable UI form based on the scraped API structure.
+- **Live Payload Terminal**: Preview and tweak your JSON payloads in real-time before making actual requests.
+- **Automated Workflow**: Seamlessly integrates web scraping, large language models, and frontend rendering into a unified developer experience.
 
-## React Compiler
+## 🛠 Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Our robust and high-performance stack is built for speed, accuracy, and scalability:
 
-## Expanding the ESLint configuration
+- **Frontend**: [React](https://react.dev/) & [Vite](https://vitejs.dev/) for an ultra-fast, modern web interface.
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) for a sleek, responsive, and professional UI.
+- **Workflow Automation**: [n8n](https://n8n.io/) to orchestrate the backend webhooks and integrate multiple services.
+- **Web Scraping**: [Firecrawl](https://www.firecrawl.dev/) for robust and deep scraping of API documentation pages.
+- **AI Inference Engine**: [vLLM](https://github.com/vllm-project/vllm) to serve our massive language model efficiently.
+- **Language Model**: GPT-OSS-20B for high-accuracy reasoning, parsing, and structured data generation.
+- **Hardware Acceleration**: AMD MI300X GPU for bleeding-edge inference speed and maximum throughput.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## ⚙️ How It Works
+
+1. **Input**: A developer pastes a target API documentation URL into the APIlot frontend.
+2. **Trigger**: The React application sends the URL to an n8n webhook.
+3. **Scrape**: n8n triggers Firecrawl to systematically scrape the documentation content.
+4. **Process**: The raw documentation data is fed into our customized GPT-OSS-20B model (running on an AMD MI300X via vLLM).
+5. **Structure**: The AI parses the unstructured text and returns a strictly typed JSON schema representing the API endpoints and parameters.
+6. **Render**: The React frontend instantly consumes this schema, rendering a dynamic, interactive form with a live payload terminal.
+
+### The n8n Automation Workflow
+> *The image below illustrates the n8n orchestration flow handling the URL webhook, scraping, and AI processing steps.*
+
+![n8n Workflow Screenshot](./public/n8n-workflow.png) <!-- Note: Please ensure the n8n screenshot is saved here or update this image path -->
+
+## ⚖️ License & Copyright
+
+**Copyright (c) 2026 ranfarrr. All Rights Reserved.**
+
+This code is provided for portfolio viewing and hackathon evaluation purposes only. No permission is granted to use, modify, copy, or distribute this software without explicit written permission.
